@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 
 from django.contrib.auth.models import User
+from insta.models import Post
+from insta.models import Likes
 
 import os
 
@@ -62,7 +64,8 @@ class Command(BaseCommand):
 
       #Menu para cuando el usuario esta ingresado    
       while menu2:
-        print("Bienvenido al menu 2")
+        cls()
+        print("Bienvenido al menu de "+ usu.username)
         print("1. Crear Post")
         print("2. Like a Post")
         print("3. Borrar Post")
@@ -72,18 +75,48 @@ class Command(BaseCommand):
         opcion = input("Ingrese la opcion escogida ")
 
         if (opcion == "1"):
+          cls()
+          print(Post.objects.all().count())
           print("Crear post")
           nombre = input("Ingrese el nombre del Post ")
           contenido = input ("Ingrese el contenido del Post")
-          
+          new_post = Post(titulo = nombre, idUsu = usu, content = contenido)
+          new_post.save()
+          print(Post.objects.all())
+          print(Post.objects.all().count())
         elif (opcion == "2"):
+          cls()
           print("Likear un post")
+          for x in Post.objects.all():
+            print(str(x.id) + "  "+ x.titulo +" " + str(Likes.objects.filter(idPost = x).count())+"\n"+ str(x.fecha)+"\n\n"+ x.content+"\n-------------------------------\n\n" )
+          idB = input("Ingrese el id del post que quiere buscar likear")
+          print(idB)
+          try:
+            post = Post.objects.get(id= idB)
+            new_like = Likes(usuario = usu, idPost= post)
+            new_like.save()
+            input("Exito")
+          except:
+            print("hey, algo fallo")
+            input("...")
         elif (opcion == "3"):
+          cls()
           print("Borrar un post")
+          for x in Post.objects.filter(idUsu = usu):
+            print(str(x.id) + "  "+ x.titulo +" " + str(Likes.objects.filter(idPost = x).count())+"\n"+ str(x.fecha)+"\n\n"+"-------------------------------\n\n" )
+          post_borrar = input("Ingrese el id del post a borrar")
+          try:
+            borrar_post = Post.objects.get(id=post_borrar)
+            borrar_post.delete()
+            input("Exito ")
+          except:
+            input("whooops, algo fallo ")
         elif (opcion == "4"):
+          cls()
           print("Menu principal")
           menu1 = True
           menu2 = False
+          usu = None
           break
         else:
           print ("No escogio una opcion valida")
